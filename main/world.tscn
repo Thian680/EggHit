@@ -1,15 +1,31 @@
 [gd_scene format=3 uid="uid://d2jlk1vmshdgw"]
 
+[ext_resource type="PackedScene" uid="uid://cjjlotyih6e1" path="res://player/player.tscn" id="2_cadw0"]
+[ext_resource type="PackedScene" uid="uid://bjy5hx4hbt17i" path="res://maps/Construction/construction.tscn" id="2_sdvrk"]
+[ext_resource type="Texture2D" uid="uid://deqwyrpq6pymw" path="res://maps/SkyBoxes/sky_daylight.png" id="3_sdvrk"]
+
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_nri2w"]
+panorama = ExtResource("3_sdvrk")
+
+[sub_resource type="Sky" id="Sky_b3acj"]
+sky_material = SubResource("PanoramaSkyMaterial_nri2w")
+
+[sub_resource type="Environment" id="Environment_ubtq6"]
+background_mode = 2
+sky = SubResource("Sky_b3acj")
+ambient_light_source = 3
+tonemap_mode = 2
+
 [node name="World" type="Node3D" unique_id=1394786962]
 
-[node name="CSGBox3D" type="CSGBox3D" parent="." unique_id=1853368310]
-use_collision = true
-size = Vector3(20, 1, 20)
+[node name="Player" parent="." unique_id=1411269743 instance=ExtResource("2_cadw0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.0594482, 5, 1)
 
-[node name="CSGBox3D2" type="CSGBox3D" parent="." unique_id=353487350]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9.647522, 5.44458, 0)
-use_collision = true
-size = Vector3(0.70495605, 11.88916, 20)
+[node name="construction" parent="." unique_id=1801729803 instance=ExtResource("2_sdvrk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1)
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=73529089]
-transform = Transform3D(0.8660254, -0.35355338, 0.35355338, 0, 0.70710677, 0.70710677, -0.5, -0.6123724, 0.6123724, 0, 0, 0)
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=582747312]
+environment = SubResource("Environment_ubtq6")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1290251304]
+transform = Transform3D(1, 0, 0, 0, 0.83867055, 0.54463905, 0, -0.54463905, 0.83867055, 0, 0, 0)

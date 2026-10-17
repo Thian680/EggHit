@@ -1,0 +1,39 @@
+[gd_scene format=3 uid="uid://cjjlotyih6e1"]
+
+[ext_resource type="Script" uid="uid://c2hu2j2jc7dnt" path="res://player/player.gd" id="1_oul6g"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ubtq6"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_oul6g"]
+radius = 0.1
+height = 0.2
+
+[node name="Player" type="CharacterBody3D" unique_id=1411269743]
+script = ExtResource("1_oul6g")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1922099060]
+shape = SubResource("CapsuleShape3D_ubtq6")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1324833495]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+current = true
+
+[node name="HandEgg" type="MeshInstance3D" parent="Camera3D" unique_id=1665352089]
+transform = Transform3D(2, 0, 0, 0, 2.6, 0, 0, 0, 2, 0.35, -0.3, -0.3)
+mesh = SubResource("SphereMesh_oul6g")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1564815063]
+
+[node name="ProgressBar" type="ProgressBar" parent="CanvasLayer" unique_id=1725948824]
+offset_left = 456.0
+offset_top = 574.0
+offset_right = 751.0
+offset_bottom = 609.0
+
+[node name="AmmoLabel" type="Label" parent="CanvasLayer" unique_id=5089947]
+offset_left = 889.0
+offset_top = 529.0
+offset_right = 929.0
+offset_bottom = 556.0
+theme_override_font_sizes/font_size = 19
+text = "1/30"

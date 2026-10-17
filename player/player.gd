@@ -1,119 +1,211 @@
-# This script goes on the Player node. It makes the player move, look, and jump.
 extends CharacterBody3D
 
-# --- Settings you can tweak ---
-const SPEED = 5.0               # How fast the player walks
-const JUMP_STRENGTH = 4.5       # How high the player jumps
-const MOUSE_SENSITIVITY = 0.003 # How fast the camera turns with the mouse
+# --- Settings ---
+const SPEED: float = 5.0
+const JUMP_STRENGTH: float = 4.5
+const MOUSE_SENSITIVITY: float = 0.003
+const MAX_HEALTH: int = 100
+const FALL_LIMIT: float = -10.0
+const STEP_HEIGHT: float = 0.5
+const STEP_LOOKAHEAD: float = 0.15
 
-const MAX_HEALTH = 100          # The most health the player can have
-var health = MAX_HEALTH         # The player's current health
+# --- Egg settings ---
+const THROW_SPEED: float = 15.0
+const FIRE_INTERVAL: float = 0.8
+const MAGAZINE_SIZE: int = 1
+const START_RESERVE: int = 30
+const AIM_RANGE: float = 100.0
 
-const THROW_SPEED = 15.0                      # How fast the egg flies
-var egg_scene = preload("res://weapons/egg.tscn")     # Loads the egg we made
+# --- Resources ---
+var egg_scene: PackedScene = preload("res://weapons/egg.tscn")
 
-# A shortcut to the health bar we just made
-@onready var health_bar = $CanvasLayer/ProgressBar
+# --- State ---
+var health: int = MAX_HEALTH
+var loaded: int = MAGAZINE_SIZE
+var reserve: int = START_RESERVE
+var reload_timer: float = 0.0
 
-# A shortcut to the Camera3D we added under the Player
-@onready var camera = $Camera3D
+# --- Node references ---
+@onready var camera: Camera3D = $Camera3D
+@onready var hand_egg: MeshInstance3D = $Camera3D/HandEgg
+@onready var health_bar: ProgressBar = $CanvasLayer/ProgressBar
+@onready var ammo_label: Label = $CanvasLayer/AmmoLabel
 
 
-# Runs once when the game starts
-func _ready():
+# --- Setup ---
+func _ready() -> void:
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
-	# Set up the health bar so it starts full
+	floor_snap_length = STEP_HEIGHT
 	health_bar.max_value = MAX_HEALTH
 	health_bar.value = health
+	_update_ammo_ui()
 
 
-# Runs every time the player does something (moves the mouse, presses a key)
-func _input(event):
-	# If the mouse moved, turn the view
+# --- Input ---
+func _input(event: InputEvent) -> void:
 	if event is InputEventMouseMotion:
-		# Mouse left/right: turn the whole body
-		rotate_y(-event.relative.x * MOUSE_SENSITIVITY)
-		# Mouse up/down: tilt only the camera (like nodding your head)
-		camera.rotate_x(-event.relative.y * MOUSE_SENSITIVITY)
-		# Stop the camera from flipping upside down
-		camera.rotation.x = clamp(camera.rotation.x, deg_to_rad(-89), deg_to_rad(89))
-
-	# Pressing Escape gives the mouse cursor back
-	if event is InputEventKey and event.keycode == KEY_ESCAPE:
+		_look(event.relative)
+	elif event is InputEventKey and event.pressed and event.keycode == KEY_ESCAPE:
 		Input.mouse_mode = Input.MOUSE_MODE_VISIBLE
-		
-		# Left mouse click throws an egg
-		# Left mouse click: get back into the game, or throw an egg
-	if event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
-		if Input.mouse_mode == Input.MOUSE_MODE_VISIBLE:
-			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED  # Re-lock the mouse to the game
-		else:
-			throw_egg()                                    # Mouse is already locked, so throw
+	elif event is InputEventMouseButton and event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
+		_on_click()
 
 
-# Runs many times per second; this is where movement happens
-func _physics_process(delta):
-	# Gravity: if we're in the air, pull downward
+func _look(motion: Vector2) -> void:
+	rotate_y(-motion.x * MOUSE_SENSITIVITY)
+	camera.rotate_x(-motion.y * MOUSE_SENSITIVITY)
+	camera.rotation.x = clamp(camera.rotation.x, deg_to_rad(-89), deg_to_rad(89))
+
+
+func _on_click() -> void:
+	if Input.mouse_mode == Input.MOUSE_MODE_VISIBLE:
+		Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	else:
+		throw_egg()
+
+
+# --- Movement ---
+func _physics_process(delta: float) -> void:
+	_apply_gravity(delta)
+	_handle_jump()
+	_handle_walk()
+	_try_step_up()
+	move_and_slide()
+	_check_fall()
+	_update_reload(delta)
+
+
+func _apply_gravity(delta: float) -> void:
 	if not is_on_floor():
 		velocity += get_gravity() * delta
 
-	# Jump: only allowed while standing on the ground
+
+func _handle_jump() -> void:
 	if Input.is_physical_key_pressed(KEY_SPACE) and is_on_floor():
 		velocity.y = JUMP_STRENGTH
 
-	# Work out which direction the player wants to walk (W, A, S, D)
-	var input_dir = Vector2.ZERO
-	if Input.is_physical_key_pressed(KEY_W):
-		input_dir.y -= 1   # forward
-	if Input.is_physical_key_pressed(KEY_S):
-		input_dir.y += 1   # backward
-	if Input.is_physical_key_pressed(KEY_A):
-		input_dir.x -= 1   # left
-	if Input.is_physical_key_pressed(KEY_D):
-		input_dir.x += 1   # right
 
-	# Convert that into a direction relative to where the player is facing
-	var direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
-
-	# Apply the walking speed (or stop if no key is pressed)
+func _handle_walk() -> void:
+	var input_dir := _get_input_direction()
+	var direction := (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 	velocity.x = direction.x * SPEED
 	velocity.z = direction.z * SPEED
 
-	# Actually move the player and handle bumping into walls/floor
-	move_and_slide()
-	
-		# If the player has fallen far below the map, they die
-		# If the player falls off the map, they die
-	if position.y < -10:
+
+func _get_input_direction() -> Vector2:
+	var dir := Vector2.ZERO
+	if Input.is_physical_key_pressed(KEY_W):
+		dir.y -= 1
+	if Input.is_physical_key_pressed(KEY_S):
+		dir.y += 1
+	if Input.is_physical_key_pressed(KEY_A):
+		dir.x -= 1
+	if Input.is_physical_key_pressed(KEY_D):
+		dir.x += 1
+	return dir
+
+
+func _try_step_up() -> void:
+	var flat_velocity := Vector3(velocity.x, 0, velocity.z)
+	if not is_on_floor() or flat_velocity.is_zero_approx():
+		return
+
+	var motion := flat_velocity.normalized() * STEP_LOOKAHEAD
+	var hit := KinematicCollision3D.new()
+	if not test_move(global_transform, motion, hit):
+		return
+	if hit.get_normal().y > 0.7:
+		return
+
+	var lift := Vector3.UP * STEP_HEIGHT
+	if test_move(global_transform, lift):
+		return
+	if test_move(global_transform.translated(lift), motion):
+		return
+
+	global_position += lift
+
+
+func _check_fall() -> void:
+	if global_position.y < FALL_LIMIT:
 		die()
 
-# Call this whenever the player gets hurt, e.g. take_damage(10)
-func take_damage(amount):
-	health -= amount           # Lower the health
-	health_bar.value = health  # Update the bar on screen
-	if health <= 0:            # No health left?
+
+# --- Health ---
+func take_damage(amount: int) -> void:
+	health -= amount
+	health_bar.value = health
+	if health <= 0:
 		die()
 
 
-# What happens when the player dies
-func die():
+func die() -> void:
 	print("You died!")
-	get_tree().reload_current_scene()  # Restart the level
-	
-# Creates an egg and launches it forward from the camera
-func throw_egg():
-	# Make a new copy of the egg and add it to the world
-	var egg = egg_scene.instantiate()
+	get_tree().reload_current_scene()
+
+
+# --- Eggs ---
+func throw_egg() -> void:
+	if loaded <= 0:
+		return
+
+	loaded -= 1
+	_spawn_egg()
+	if reserve > 0:
+		reload_timer = FIRE_INTERVAL
+	_update_ammo_ui()
+
+
+func _spawn_egg() -> void:
+	var egg: RigidBody3D = egg_scene.instantiate()
 	get_tree().current_scene.add_child(egg)
 
-	# The camera's "forward" direction (Godot uses -Z as forward)
-	var forward = -camera.global_transform.basis.z
+	var start := _get_spawn_point()
+	var offset := _get_aim_point() - start
+	var direction := -camera.global_transform.basis.z
+	if offset.length() > 0.1:
+		direction = offset.normalized()
 
-	# Start the egg a little in front of the camera
-	egg.global_position = camera.global_position + forward * 0.8
-
-	# Stop the egg from colliding with the player who threw it
+	egg.global_position = start
 	egg.add_collision_exception_with(self)
+	egg.linear_velocity = direction * THROW_SPEED
 
-	# Launch it
-	egg.linear_velocity = forward * THROW_SPEED
+
+func _get_spawn_point() -> Vector3:
+	var hand_position := hand_egg.global_position
+	var hit := _raycast(camera.global_position, hand_position)
+	if hit.is_empty():
+		return hand_position
+	return hit.position + hit.normal * 0.15
+
+
+func _get_aim_point() -> Vector3:
+	var from := camera.global_position
+	var to := from - camera.global_transform.basis.z * AIM_RANGE
+	var hit := _raycast(from, to)
+	if hit.is_empty():
+		return to
+	return hit.position
+
+
+func _raycast(from: Vector3, to: Vector3) -> Dictionary:
+	var query := PhysicsRayQueryParameters3D.create(from, to)
+	query.exclude = [get_rid()]
+	return get_world_3d().direct_space_state.intersect_ray(query)
+
+
+# --- Ammo ---
+func _update_reload(delta: float) -> void:
+	if reload_timer <= 0.0:
+		return
+
+	reload_timer -= delta
+	if reload_timer <= 0.0:
+		reserve -= 1
+		loaded += 1
+		_update_ammo_ui()
+
+
+func _update_ammo_ui() -> void:
+	ammo_label.text = "%d / %d" % [loaded, reserve]
+	hand_egg.visible = loaded > 0

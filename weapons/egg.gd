@@ -1,41 +1,62 @@
-# This script goes on the Egg. It makes the egg break when it hits something.
 extends RigidBody3D
 
-# Stops the egg from breaking twice if it touches two things at once
-var broken = false
+# --- Settings ---
+const SPLAT_TEXTURE: Texture2D = preload("res://weapons/splat.png")
+const SPLAT_SIZE: float = 1.2
+const SPLAT_OFFSET: float = 0.03
+const SPLAT_LIFETIME: float = 8.0
+
+# --- State ---
+var broken: bool = false
 
 
-func _ready():
-	# "When this egg touches something, run the function called break_egg"
-	body_entered.connect(break_egg)
+# --- Setup ---
+func _ready() -> void:
+	contact_monitor = true
+	max_contacts_reported = 1
+	continuous_cd = true
+	get_tree().create_timer(10.0).timeout.connect(queue_free)
 
 
-func break_egg(_body):
-	if broken:
+# --- Impact ---
+func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
+	if broken or state.get_contact_count() == 0:
 		return
 	broken = true
 
-	# Make a flat yellow blob to look like a splat
-	var splat = MeshInstance3D.new()
-	var blob = SphereMesh.new()
-	blob.radius = 0.3
-	blob.height = 0.6
-	splat.mesh = blob
+	var point := state.get_contact_collider_position(0)
+	var normal := state.get_contact_local_normal(0)
+	if normal.dot(global_position - point) < 0:
+		normal = -normal
 
-	# Give the blob a yellow color
-	var color = StandardMaterial3D.new()
-	color.albedo_color = Color(1, 0.85, 0.2)
-	splat.material_override = color
+	_splat.call_deferred(point, normal)
 
-	# Squash it flat
-	splat.scale = Vector3(1, 0.3, 1)
 
-	# Put the splat in the world, right where the egg was
+# --- Splat ---
+func _splat(point: Vector3, normal: Vector3) -> void:
+	var splat := MeshInstance3D.new()
+	splat.mesh = _build_quad()
 	get_tree().current_scene.add_child(splat)
-	splat.global_position = global_position
+	splat.global_transform = Transform3D(_surface_basis(normal), point + normal * SPLAT_OFFSET)
 
-	# Remove the splat after 5 seconds so they don't pile up
-	get_tree().create_timer(5.0).timeout.connect(splat.queue_free)
-
-	# Remove the egg itself
+	get_tree().create_timer(SPLAT_LIFETIME).timeout.connect(splat.queue_free)
 	queue_free()
+
+
+func _build_quad() -> QuadMesh:
+	var quad := QuadMesh.new()
+	quad.size = Vector2(SPLAT_SIZE, SPLAT_SIZE)
+
+	var material := StandardMaterial3D.new()
+	material.albedo_texture = SPLAT_TEXTURE
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	quad.material = material
+	return quad
+
+
+func _surface_basis(normal: Vector3) -> Basis:
+	var ref := Vector3.UP if absf(normal.dot(Vector3.UP)) < 0.99 else Vector3.RIGHT
+	var x := ref.cross(normal).normalized()
+	var y := normal.cross(x)
+	return Basis(x, y, normal).rotated(normal, randf() * TAU)
