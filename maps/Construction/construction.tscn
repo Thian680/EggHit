@@ -1,8 +1,28 @@
 [gd_scene format=3 uid="uid://bjy5hx4hbt17i"]
 
-[ext_resource type="PackedScene" uid="uid://b88pc8s83ciaw" path="res://maps/Construction/construction.glb" id="1_u065p"]
+[ext_resource type="PackedScene" uid="uid://b88pc8s83ciaw" path="res://maps/construction/construction.glb" id="1_u065p"]
+[ext_resource type="PackedScene" uid="uid://bjtk42si2oaaw" path="res://targets/target.tscn" id="2_vq8t2"]
 
 [node name="construction" type="Node3D" unique_id=1801729803]
 
 [node name="construction" parent="." unique_id=473174802 instance=ExtResource("1_u065p")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1)
+
+[node name="SpawnPoints" type="Node3D" parent="." unique_id=1965740036]
+
+[node name="Marker3D" type="Marker3D" parent="SpawnPoints" unique_id=949612761]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 32.7381, 2.999998, 78.29585)
+
+[node name="Marker3D4" type="Marker3D" parent="SpawnPoints" unique_id=1593387168]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2909565, 3, -77.40745)
+
+[node name="Target" parent="." unique_id=1938490963 instance=ExtResource("2_vq8t2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.1724143, 1.9462373, 0)
+
+[node name="Target2" parent="." unique_id=1947072137 instance=ExtResource("2_vq8t2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.7471304, 2.0322473, 3.6097374)
+
+[node name="Target3" parent="." unique_id=2082854864 instance=ExtResource("2_vq8t2")]
+
+[node name="Target4" parent="." unique_id=1284604425 instance=ExtResource("2_vq8t2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.968003, 6.368886)

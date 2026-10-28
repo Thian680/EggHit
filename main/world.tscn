@@ -1,8 +1,9 @@
 [gd_scene format=3 uid="uid://d2jlk1vmshdgw"]
 
+[ext_resource type="Script" uid="uid://r07lr3ot47nb" path="res://main/world.gd" id="1_b3acj"]
 [ext_resource type="PackedScene" uid="uid://cjjlotyih6e1" path="res://player/player.tscn" id="2_cadw0"]
-[ext_resource type="PackedScene" uid="uid://bjy5hx4hbt17i" path="res://maps/Construction/construction.tscn" id="2_sdvrk"]
-[ext_resource type="Texture2D" uid="uid://deqwyrpq6pymw" path="res://maps/SkyBoxes/sky_daylight.png" id="3_sdvrk"]
+[ext_resource type="PackedScene" uid="uid://cewe53alulvtq" path="res://maps/city/city.tscn" id="3_b3acj"]
+[ext_resource type="Texture2D" uid="uid://deqwyrpq6pymw" path="res://maps/skyboxes/sky_daylight.png" id="3_sdvrk"]
 
 [sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_nri2w"]
 panorama = ExtResource("3_sdvrk")
@@ -17,15 +18,20 @@ ambient_light_source = 3
 tonemap_mode = 2
 
 [node name="World" type="Node3D" unique_id=1394786962]
-
-[node name="Player" parent="." unique_id=1411269743 instance=ExtResource("2_cadw0")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5.0594482, 5, 1)
-
-[node name="construction" parent="." unique_id=1801729803 instance=ExtResource("2_sdvrk")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1)
+script = ExtResource("1_b3acj")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=582747312]
 environment = SubResource("Environment_ubtq6")
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1290251304]
 transform = Transform3D(1, 0, 0, 0, 0.83867055, 0.54463905, 0, -0.54463905, 0.83867055, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Map" type="Node3D" parent="." unique_id=1698349147]
+
+[node name="city" parent="Map" unique_id=515694868 instance=ExtResource("3_b3acj")]
+
+[node name="Players" type="Node3D" parent="." unique_id=183281902]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.840124, 3.1103935, 0)
+
+[node name="Player" parent="Players" unique_id=1411269743 instance=ExtResource("2_cadw0")]

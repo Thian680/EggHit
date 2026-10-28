@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://bt2gbwjxb4m36"
-path.s3tc="res://.godot/imported/City_0.png-0c07a58481e1168592ccb5c9303fc04b.s3tc.ctex"
+path.s3tc="res://.godot/imported/City_0.png-8f1ce2897c28333f697492f0886c9633.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -14,8 +14,8 @@ generator_parameters={
 
 [deps]
 
-source_file="res://maps/City/City_0.png"
-dest_files=["res://.godot/imported/City_0.png-0c07a58481e1168592ccb5c9303fc04b.s3tc.ctex"]
+source_file="res://maps/city/City_0.png"
+dest_files=["res://.godot/imported/City_0.png-8f1ce2897c28333f697492f0886c9633.s3tc.ctex"]
 
 [params]
 

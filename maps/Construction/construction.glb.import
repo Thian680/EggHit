@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://b88pc8s83ciaw"
-path="res://.godot/imported/construction.glb-80ea57b395d4762e7183ce7ecdbb543b.scn"
+path="res://.godot/imported/construction.glb-4a021d029993474b1f487ff37f5d076b.scn"
 
 [deps]
 
-source_file="res://maps/Construction/construction.glb"
-dest_files=["res://.godot/imported/construction.glb-80ea57b395d4762e7183ce7ecdbb543b.scn"]
+source_file="res://maps/construction/construction.glb"
+dest_files=["res://.godot/imported/construction.glb-4a021d029993474b1f487ff37f5d076b.scn"]
 
 [params]
 

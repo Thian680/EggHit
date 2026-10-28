@@ -4,12 +4,12 @@ importer="scene"
 importer_version=1
 type="PackedScene"
 uid="uid://2823g2qjdk31"
-path="res://.godot/imported/narrow.glb-e40d732edb5d0025957816ff44f8edb9.scn"
+path="res://.godot/imported/narrow.glb-8f4abf167c3e85be30bf8402a70dd705.scn"
 
 [deps]
 
-source_file="res://maps/Narrow/narrow.glb"
-dest_files=["res://.godot/imported/narrow.glb-e40d732edb5d0025957816ff44f8edb9.scn"]
+source_file="res://maps/narrow/narrow.glb"
+dest_files=["res://.godot/imported/narrow.glb-8f4abf167c3e85be30bf8402a70dd705.scn"]
 
 [params]
 

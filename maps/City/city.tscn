@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cewe53alulvtq"]
 
-[ext_resource type="PackedScene" uid="uid://c4rrlx2q8bera" path="res://maps/City/city.glb" id="1_8w003"]
+[ext_resource type="PackedScene" uid="uid://c4rrlx2q8bera" path="res://maps/city/city.glb" id="1_8w003"]
 
 [node name="city" type="Node3D" unique_id=515694868]
 

@@ -1,6 +1,8 @@
 [gd_scene format=3 uid="uid://cjjlotyih6e1"]
 
 [ext_resource type="Script" uid="uid://c2hu2j2jc7dnt" path="res://player/player.gd" id="1_oul6g"]
+[ext_resource type="Script" uid="uid://ckt2npijgpq6i" path="res://player/crosshair.gd" id="2_rkbax"]
+[ext_resource type="PackedScene" uid="uid://c32prsuxmy4oy" path="res://skins/godotman/godotman.glb" id="3_g1dw6"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_ubtq6"]
 
@@ -13,14 +15,6 @@ script = ExtResource("1_oul6g")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1922099060]
 shape = SubResource("CapsuleShape3D_ubtq6")
-
-[node name="Camera3D" type="Camera3D" parent="." unique_id=1324833495]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
-current = true
-
-[node name="HandEgg" type="MeshInstance3D" parent="Camera3D" unique_id=1665352089]
-transform = Transform3D(2, 0, 0, 0, 2.6, 0, 0, 0, 2, 0.35, -0.3, -0.3)
-mesh = SubResource("SphereMesh_oul6g")
 
 [node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1564815063]
 
@@ -37,3 +31,56 @@ offset_right = 929.0
 offset_bottom = 556.0
 theme_override_font_sizes/font_size = 19
 text = "1/30"
+
+[node name="ScoreLabel" type="Label" parent="CanvasLayer" unique_id=158403943]
+offset_left = 20.0
+offset_top = 20.0
+offset_right = 134.0
+offset_bottom = 43.0
+text = "Eliminations: 0"
+
+[node name="MessageLabel" type="Label" parent="CanvasLayer" unique_id=1604062073]
+offset_left = 549.0
+offset_top = 278.0
+offset_right = 618.0
+offset_bottom = 301.0
+text = "You Died"
+
+[node name="Crosshair" type="Control" parent="CanvasLayer" unique_id=720142946]
+layout_mode = 3
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("2_rkbax")
+
+[node name="Body" parent="." unique_id=644215624 instance=ExtResource("3_g1dw6")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, -1, 0.411)
+
+[node name="Skeleton3D" type="Skeleton3D" parent="Body" unique_id=1162241825]
+
+[node name="BoneAttachment3D" type="BoneAttachment3D" parent="Body/Skeleton3D" unique_id=734880388]
+bone_name = "hand.R.002"
+
+[node name="HandEgg" type="MeshInstance3D" parent="Body/Skeleton3D" unique_id=1665352089]
+transform = Transform3D(2.35, 0, 0, 0, 3.05, 0, 0, 0, 2.35, 0.020000001, 0.9, -0.050000012)
+mesh = SubResource("SphereMesh_oul6g")
+
+[node name="CameraPivot" type="Node3D" parent="." unique_id=772608111]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.6, 0)
+
+[node name="SpringArm3D" type="SpringArm3D" parent="CameraPivot" unique_id=49809181]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, 0.2, 0)
+spring_length = 3.5
+margin = 0.2
+
+[node name="Camera3D" type="Camera3D" parent="CameraPivot/SpringArm3D" unique_id=1324833495]
+current = true

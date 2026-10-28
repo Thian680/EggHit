@@ -1,6 +1,9 @@
 extends RigidBody3D
 
 # --- Settings ---
+const DAMAGE: int = 20
+const GRAVITY_SCALE: float = 1.0
+const LIFETIME: float = 10.0
 const SPLAT_TEXTURE: Texture2D = preload("res://weapons/splat.png")
 const SPLAT_SIZE: float = 1.2
 const SPLAT_OFFSET: float = 0.03
@@ -8,6 +11,7 @@ const SPLAT_LIFETIME: float = 8.0
 
 # --- State ---
 var broken: bool = false
+var thrower: Node = null
 
 
 # --- Setup ---
@@ -15,7 +19,12 @@ func _ready() -> void:
 	contact_monitor = true
 	max_contacts_reported = 1
 	continuous_cd = true
-	get_tree().create_timer(10.0).timeout.connect(queue_free)
+	collision_layer = 2
+	collision_mask = 1
+	gravity_scale = GRAVITY_SCALE
+	linear_damp_mode = RigidBody3D.DAMP_MODE_REPLACE
+	linear_damp = 0.0
+	get_tree().create_timer(LIFETIME).timeout.connect(queue_free)
 
 
 # --- Impact ---
@@ -29,7 +38,16 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	if normal.dot(global_position - point) < 0:
 		normal = -normal
 
+	_apply_damage(state.get_contact_collider_object(0))
 	_splat.call_deferred(point, normal)
+
+
+func _apply_damage(target: Object) -> void:
+	if target == null or not target.has_method("take_damage"):
+		return
+
+	var attacker: Node = thrower if is_instance_valid(thrower) else null
+	target.call_deferred("take_damage", DAMAGE, attacker)
 
 
 # --- Splat ---

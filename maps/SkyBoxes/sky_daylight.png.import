@@ -3,7 +3,7 @@
 importer="texture"
 type="CompressedTexture2D"
 uid="uid://deqwyrpq6pymw"
-path.s3tc="res://.godot/imported/sky_daylight.png-911b63cdb9aa45ae065b7f4c8d500799.s3tc.ctex"
+path.s3tc="res://.godot/imported/sky_daylight.png-9ef176aef439a4e174a468636ac1cfe0.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
@@ -11,8 +11,8 @@ metadata={
 
 [deps]
 
-source_file="res://maps/SkyBoxes/sky_daylight.png"
-dest_files=["res://.godot/imported/sky_daylight.png-911b63cdb9aa45ae065b7f4c8d500799.s3tc.ctex"]
+source_file="res://maps/skyboxes/sky_daylight.png"
+dest_files=["res://.godot/imported/sky_daylight.png-9ef176aef439a4e174a468636ac1cfe0.s3tc.ctex"]
 
 [params]
 

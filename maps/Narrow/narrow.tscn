@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bi8ld1j3e3sem"]
 
-[ext_resource type="PackedScene" uid="uid://2823g2qjdk31" path="res://maps/Narrow/narrow.glb" id="1_kg0r7"]
+[ext_resource type="PackedScene" uid="uid://2823g2qjdk31" path="res://maps/narrow/narrow.glb" id="1_kg0r7"]
 
 [node name="narrow" type="Node3D" unique_id=1589277695]
 
